@@ -57,7 +57,8 @@ const ChatHeader = ({ chatId, activeTab, onTabChange }: ChatHeaderProps) => {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          p: 2,
+          px: 2,
+          height: 56,
           borderBottom: "1px solid",
           borderColor: "divider",
           bgcolor: "background.paper",
@@ -95,10 +96,10 @@ const ChatHeader = ({ chatId, activeTab, onTabChange }: ChatHeaderProps) => {
         value={activeTab} 
         onChange={handleTabChange}
         sx={{
-          minHeight: 42,
+          minHeight: 40,
           px: 2,
           '& .MuiTab-root': {
-            minHeight: 42,
+            minHeight: 40,
             textTransform: 'none',
             fontWeight: 500,
             fontSize: '0.9375rem',

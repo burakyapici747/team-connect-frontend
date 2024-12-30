@@ -53,14 +53,27 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#e9ecef',
+            border: '1px solid',
+            borderColor: 'rgba(0, 0, 0, 0.23)',
           },
           '&:hover .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#0062ff',
+            borderColor: 'rgba(0, 0, 0, 0.87)',
           },
           '&.Mui-focused': {
             '& .MuiOutlinedInput-notchedOutline': {
-              borderWidth: 0,
+              border: 'none',
+            },
+            '& fieldset': {
+              border: 'none !important',
+            },
+            '& .MuiOutlinedInput-input': {
+              outline: 'none !important',
+            },
+          },
+          '& .MuiOutlinedInput-input': {
+            '&:focus': {
+              outline: 'none !important',
+              boxShadow: 'none !important',
             },
           },
           '&.MuiInputBase-multiline': {
