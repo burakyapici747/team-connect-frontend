@@ -1,29 +1,46 @@
 import { forwardRef } from 'react';
 import { UseFormRegisterReturn } from 'react-hook-form';
 
-interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface FormInputProps {
   label: string;
+  type: string;
+  placeholder: string;
   error?: string;
-  registration?: Partial<UseFormRegisterReturn>;
+  registration: UseFormRegisterReturn;
+  darkMode?: boolean;
 }
 
 export const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
-  ({ label, error, registration, className = '', ...props }, ref) => {
+  ({ label, type, placeholder, error, registration, darkMode = false }, ref) => {
     return (
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">{label}</label>
+        <label className={`block text-sm font-medium ${darkMode ? 'text-[#B5BAC1]' : 'text-gray-700'}`}>
+          {label}
+        </label>
         <input
-          {...registration}
-          {...props}
-          ref={ref}
+          type={type}
           className={`
-            w-full px-4 py-2 text-gray-700 bg-white border rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition duration-200
-            ${error ? 'border-red-500' : 'border-gray-300'}
-            ${className}
+            w-full px-3 py-2 
+            ${darkMode 
+              ? 'bg-[#1E1F22] text-white border-none focus:ring-1 focus:ring-[#5865F2]' 
+              : 'border border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-gray-900'
+            }
+            rounded-sm
+            focus:outline-none focus:ring-1
+            disabled:cursor-not-allowed disabled:opacity-50
+            ${error ? 'border-red-500' : ''}
           `}
+          placeholder={placeholder}
+          {...registration}
         />
-        {error && <p className="text-sm text-red-500">{error}</p>}
+        {error && (
+          <p className={`text-xs ${darkMode ? 'text-red-400' : 'text-red-500'}`}>
+            {error}
+          </p>
+        )}
       </div>
     );
   }
-); 
+);
+
+FormInput.displayName = 'FormInput'; 
