@@ -1,74 +1,118 @@
 'use client';
 
-import { FormInput } from '@/components/common/FormInput';
-import { useForgotPasswordForm } from '@/hooks/useForgotPasswordForm';
-import Image from 'next/image';
+import { useState } from 'react';
+import { Box, Typography, TextField, Button, Link as MuiLink, Container, Paper } from '@mui/material';
 import Link from 'next/link';
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const forgotPasswordSchema = z.object({
+  email: z.string().email('Geçerli bir email adresi girin'),
+});
+
+type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
 export default function ForgotPasswordPage() {
-  const { form, onSubmit } = useForgotPasswordForm();
-  const { register, formState: { errors }, handleSubmit } = form;
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState('');
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ForgotPasswordFormData>({
+    resolver: zodResolver(forgotPasswordSchema),
+  });
+
+  const onSubmit = async (data: ForgotPasswordFormData) => {
+    try {
+      setError('');
+      // API çağrısı burada yapılacak
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simüle edilmiş API çağrısı
+      setIsSubmitted(true);
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Bir hata oluştu');
+    }
+  };
 
   return (
-    <div className="min-h-screen auth-background">
-      <div className="min-h-screen flex items-center justify-center p-4 auth-container">
-        <div className="w-full max-w-[480px] animate-in">
-          <div className="glass-effect rounded-xl p-8 space-y-8">
-            {/* Logo ve Başlık */}
-            <div className="text-center space-y-3">
-              <div className="relative w-16 h-16 mx-auto mb-2">
-                <Image
-                  src="/logo.svg"
-                  alt="Team Connect Logo"
-                  fill
-                  className="object-contain"
-                  priority
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        bgcolor: 'grey.50',
+        py: 12,
+        px: 2,
+      }}
+    >
+      <Container maxWidth="sm">
+        <Paper
+          elevation={2}
+          sx={{
+            p: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 3,
+          }}
+        >
+          {!isSubmitted ? (
+            <>
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="h4" component="h1" gutterBottom>
+                  Şifremi Unuttum
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Email adresinizi girin, size şifre sıfırlama bağlantısı gönderelim
+                </Typography>
+              </Box>
+
+              <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <TextField
+                  label="Email"
+                  type="email"
+                  fullWidth
+                  {...register('email')}
+                  error={!!errors.email}
+                  helperText={errors.email?.message}
                 />
-              </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Şifremi Unuttum
-              </h1>
-              <p className="text-gray-600 text-sm">
-                Şifrenizi sıfırlamak için email adresinizi girin
-              </p>
-            </div>
 
-            {/* Forgot Password Form */}
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              <TextField
-                {...register("email")}
-                label="Email"
-                type="email"
-                fullWidth
-                error={!!errors.email}
-                helperText={errors.email?.message}
-                className="auth-input"
-              />
+                {error && (
+                  <Typography color="error" variant="body2">
+                    {error}
+                  </Typography>
+                )}
 
-              <div className="pt-2">
-                <button
+                <Button
                   type="submit"
-                  className="w-full py-2.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-[1.02] focus:scale-[0.98] focus:outline-none"
+                  variant="contained"
+                  fullWidth
+                  disabled={isSubmitting}
+                  sx={{ mt: 2 }}
                 >
-                  Şifre Sıfırlama Bağlantısı Gönder
-                </button>
-              </div>
-            </form>
+                  {isSubmitting ? 'Gönderiliyor...' : 'Sıfırlama Bağlantısı Gönder'}
+                </Button>
+              </Box>
+            </>
+          ) : (
+            <Box sx={{ textAlign: 'center' }}>
+              <Typography variant="h5" gutterBottom color="primary">
+                Email Gönderildi!
+              </Typography>
+              <Typography variant="body1" paragraph>
+                Şifre sıfırlama bağlantısı email adresinize gönderildi. Lütfen gelen kutunuzu kontrol edin.
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Email gelmediyse spam klasörünü kontrol etmeyi unutmayın.
+              </Typography>
+            </Box>
+          )}
 
-            {/* Back to Login */}
-            <p className="text-center text-sm text-gray-600">
-              Şifrenizi hatırladınız mı?{' '}
-              <Link
-                href="/login"
-                className="font-medium text-blue-600 hover:text-blue-700 hover:underline"
-              >
-                Giriş yapın
-              </Link>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="body2">
+              <MuiLink component={Link} href="/login">
+                Giriş sayfasına dön
+              </MuiLink>
+            </Typography>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 } 
