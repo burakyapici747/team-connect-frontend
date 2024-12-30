@@ -1,15 +1,43 @@
 "use client";
 
-import { Box, IconButton, Typography, Avatar as MuiAvatar, Tabs, Tab } from "@mui/material";
-import { 
-  MoreVert as MoreVertIcon,
-  Phone as PhoneIcon,
-  Videocam as VideocamIcon,
-  ScreenShare as ScreenShareIcon,
-  Group as GroupIcon 
-} from "@mui/icons-material";
+import { Box, IconButton, Typography, Tabs, Tab } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import VideocamRoundedIcon from '@mui/icons-material/VideocamRounded';
+import CallRoundedIcon from '@mui/icons-material/CallRounded';
+import ScreenShareRoundedIcon from '@mui/icons-material/ScreenShareRounded';
+import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
+import Avatar from "../common/Avatar";
+import { useState } from "react";
 
-type TabType = 'chat' | 'files' | 'photos';
+const ActionIcon = styled(IconButton)(({ theme }) => ({
+  color: theme.palette.text.secondary,
+  padding: theme.spacing(1),
+  position: 'relative',
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    bottom: 4,
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: 0,
+    height: 2,
+    backgroundColor: theme.palette.primary.main,
+    transition: 'width 0.2s ease',
+    borderRadius: theme.shape.borderRadius,
+  },
+  '&:hover': {
+    backgroundColor: 'transparent',
+    color: theme.palette.primary.main,
+    '&::after': {
+      width: '60%',
+    },
+  },
+  '& .MuiSvgIcon-root': {
+    fontSize: '1.4rem',
+  },
+}));
+
+export type TabType = 'chat' | 'files' | 'photos';
 
 interface ChatHeaderProps {
   chatId: string;
@@ -18,94 +46,67 @@ interface ChatHeaderProps {
 }
 
 const ChatHeader = ({ chatId, activeTab, onTabChange }: ChatHeaderProps) => {
-  const chatInfo = {
-    name: "John Doe",
-    status: "Online",
-    lastSeen: "Last seen today at 12:45 PM",
-    isOnline: true,
-  };
-
   const handleTabChange = (_: React.SyntheticEvent, newValue: TabType) => {
     onTabChange(newValue);
   };
 
   return (
-    <Box sx={{ 
-      bgcolor: 'background.paper',
-      borderBottom: 1,
-      borderColor: 'divider'
-    }}>
-      <Box sx={{ 
-        height: 64, 
-        px: 3, 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between'
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <MuiAvatar 
-            sx={{ 
-              width: 40, 
-              height: 40,
-              position: 'relative',
-              '&::after': chatInfo.isOnline ? {
-                content: '""',
-                position: 'absolute',
-                width: 12,
-                height: 12,
-                bgcolor: 'success.main',
-                borderRadius: '50%',
-                border: 2,
-                borderColor: 'background.paper',
-                bottom: 0,
-                right: 0,
-              } : {}
-            }}
-          >
-            {chatInfo.name[0]}
-          </MuiAvatar>
+    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          p: 2,
+          borderBottom: "1px solid",
+          borderColor: "divider",
+          bgcolor: "background.paper",
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          <Avatar
+            name="John Doe"
+            size="md"
+            isOnline={true}
+          />
           <Box>
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
-              {chatInfo.name}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {chatInfo.lastSeen}
+            <Typography variant="subtitle1">John Doe</Typography>
+            <Typography variant="caption" color="text.secondary">
+              Last seen today at 12:45 PM
             </Typography>
           </Box>
         </Box>
-        
-        <Box sx={{ display: 'flex', gap: 0.5 }}>
-          <IconButton>
-            <GroupIcon />
-          </IconButton>
-          <IconButton>
-            <VideocamIcon />
-          </IconButton>
-          <IconButton>
-            <PhoneIcon />
-          </IconButton>
-          <IconButton>
-            <ScreenShareIcon />
-          </IconButton>
-          <IconButton>
-            <MoreVertIcon />
-          </IconButton>
+        <Box sx={{ display: "flex", gap: 0.5 }}>
+          <ActionIcon>
+            <VideocamRoundedIcon />
+          </ActionIcon>
+          <ActionIcon>
+            <CallRoundedIcon />
+          </ActionIcon>
+          <ActionIcon>
+            <ScreenShareRoundedIcon />
+          </ActionIcon>
+          <ActionIcon>
+            <MoreVertRoundedIcon />
+          </ActionIcon>
         </Box>
       </Box>
-
       <Tabs 
         value={activeTab} 
         onChange={handleTabChange}
         sx={{
-          px: 3,
           minHeight: 42,
-          borderTop: 1,
-          borderColor: 'divider',
+          px: 2,
           '& .MuiTab-root': {
             minHeight: 42,
             textTransform: 'none',
-            fontWeight: 500
-          }
+            fontWeight: 500,
+            fontSize: '0.9375rem',
+            color: 'text.secondary',
+            '&.Mui-selected': {
+              color: 'primary.main',
+            },
+          },
         }}
       >
         <Tab label="Chat" value="chat" />

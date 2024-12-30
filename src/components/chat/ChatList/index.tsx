@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import Avatar from "@/components/common/Avatar";
+import { Box, Button, Typography, Badge } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
 export interface ChatListProps {
   searchQuery: string;
@@ -18,6 +20,37 @@ interface Chat {
   isOnline: boolean;
   isGroup?: boolean;
 }
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  width: '100%',
+  padding: theme.spacing(1.5, 1.5),
+  display: 'flex',
+  alignItems: 'flex-start',
+  gap: theme.spacing(1.5),
+  textTransform: 'none',
+  justifyContent: 'flex-start',
+  color: 'inherit',
+  borderRadius: 0,
+  '&:hover': {
+    backgroundColor: theme.palette.action.hover,
+  },
+  '&:focus': {
+    backgroundColor: theme.palette.action.focus,
+  },
+}));
+
+const StyledBadge = styled(Badge)(({ theme }) => ({
+  '& .MuiBadge-badge': {
+    minWidth: 20,
+    height: 20,
+    padding: '0 6px',
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    fontSize: '0.75rem',
+    fontWeight: 500,
+    borderRadius: 10,
+  },
+}));
 
 const MOCK_CHATS: Chat[] = [
   {
@@ -53,13 +86,11 @@ const ChatList = ({ searchQuery, onChatSelect }: ChatListProps) => {
   );
 
   return (
-    <div className="py-2">
+    <Box sx={{ py: 1 }}>
       {filteredChats.map((chat) => (
-        <button
+        <StyledButton
           key={chat.id}
           onClick={() => onChatSelect?.(chat.id)}
-          className="w-full px-3 py-2.5 flex items-start gap-3 hover:bg-gray-50 
-            group transition-all focus:bg-gray-100 focus:outline-none"
         >
           <Avatar 
             name={chat.name}
@@ -67,28 +98,64 @@ const ChatList = ({ searchQuery, onChatSelect }: ChatListProps) => {
             showStatus={!chat.isGroup}
             isOnline={chat.isOnline}
           />
-          <div className="flex-1 min-w-0 flex flex-col items-start">
-            <div className="w-full flex justify-between items-center mb-0.5">
-              <h3 className="text-sm font-semibold text-gray-900 truncate group-hover:text-primary-600">
+          <Box sx={{ 
+            flex: 1, 
+            minWidth: 0, 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'flex-start' 
+          }}>
+            <Box sx={{ 
+              width: '100%', 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center', 
+              mb: 0.25 
+            }}>
+              <Typography 
+                variant="subtitle2" 
+                noWrap 
+                sx={{ 
+                  fontWeight: 600,
+                  color: 'text.primary',
+                  '&:hover': {
+                    color: 'primary.main'
+                  }
+                }}
+              >
                 {chat.name}
-              </h3>
-              <span className="text-xs text-gray-500 ml-2 tabular-nums">
+              </Typography>
+              <Typography 
+                variant="caption" 
+                sx={{ 
+                  ml: 1,
+                  color: 'text.secondary',
+                  fontVariantNumeric: 'tabular-nums'
+                }}
+              >
                 {format(chat.timestamp, "d MMM")}
-              </span>
-            </div>
-            <p className="text-sm text-gray-600 truncate w-full">
+              </Typography>
+            </Box>
+            <Typography 
+              variant="body2" 
+              noWrap 
+              sx={{ 
+                width: '100%',
+                color: 'text.secondary'
+              }}
+            >
               {chat.lastMessage}
-            </p>
-          </div>
+            </Typography>
+          </Box>
           {chat.unreadCount > 0 && (
-            <span className="flex-shrink-0 h-5 min-w-5 px-1.5 inline-flex items-center 
-              justify-center bg-primary-500 text-white text-xs font-medium rounded-full">
-              {chat.unreadCount}
-            </span>
+            <StyledBadge 
+              badgeContent={chat.unreadCount} 
+              sx={{ flexShrink: 0 }}
+            />
           )}
-        </button>
+        </StyledButton>
       ))}
-    </div>
+    </Box>
   );
 };
 
