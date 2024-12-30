@@ -13,6 +13,7 @@ import { BsEmojiSmile, BsEmojiLaughing, BsEmojiHeartEyes, BsHandThumbsUp } from 
 import { IoMdHeart } from 'react-icons/io';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
+import Lottie from 'react-lottie-player';
 
 interface Message {
   id: string;
@@ -94,32 +95,11 @@ const ActionIconButton = styled(IconButton)(({ theme }) => ({
 }));
 
 const ReactionButton = styled(ActionIconButton)(({ theme }) => ({
-  '&.thumbs-up': {
-    color: '#1976d2',
-    '&:hover': {
-      color: '#1565c0',
-    }
-  },
-  '&.heart': {
-    color: '#e91e63',
-    '&:hover': {
-      color: '#d81b60',
-    }
-  },
-  '&.laugh': {
-    color: '#ff9800',
-    '&:hover': {
-      color: '#f57c00',
-    }
-  },
-  '&.wow': {
-    color: '#ff5722',
-    '&:hover': {
-      color: '#f4511e',
-    }
-  },
   '&:hover': {
     transform: 'scale(1.2) translateY(-2px)',
+    '& .lottie-animation': {
+      play: true,
+    }
   },
 }));
 
@@ -240,6 +220,7 @@ const ChatMessages = ({ chatId }: ChatMessagesProps) => {
     messageId: string;
     isOpen: boolean;
   } | null>(null);
+  const [hoveredReaction, setHoveredReaction] = useState<string | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -337,17 +318,47 @@ const ChatMessages = ({ chatId }: ChatMessagesProps) => {
                 </MessageBubble>
                 {!message.isSelf && (
                   <MessageActions className="message-actions">
-                    <ReactionButton size="small" className="thumbs-up">
-                      <BsHandThumbsUp />
+                    <ReactionButton 
+                      size="small" 
+                      className="thumbs-up"
+                      onMouseEnter={() => setHoveredReaction('thumbs-up')}
+                      onMouseLeave={() => setHoveredReaction(null)}
+                    >
+                      <Lottie
+                        className="lottie-animation"
+                        loop
+                        path="/animations/thumbs-up.json"
+                        play={hoveredReaction === 'thumbs-up'}
+                        style={{ width: 32, height: 32 }}
+                      />
                     </ReactionButton>
-                    <ReactionButton size="small" className="heart">
-                      <IoMdHeart />
+                    <ReactionButton 
+                      size="small" 
+                      className="heart"
+                      onMouseEnter={() => setHoveredReaction('heart')}
+                      onMouseLeave={() => setHoveredReaction(null)}
+                    >
+                      <Lottie
+                        className="lottie-animation"
+                        loop
+                        path="/animations/heart.json"
+                        play={hoveredReaction === 'heart'}
+                        style={{ width: 32, height: 32 }}
+                      />
                     </ReactionButton>
-                    <ReactionButton size="small" className="laugh">
-                      <BsEmojiLaughing />
-                    </ReactionButton>
-                    <ReactionButton size="small" className="wow">
-                      <BsEmojiHeartEyes />
+                    <ReactionButton 
+                      size="small" 
+                      className="smile"
+                      onMouseEnter={() => setHoveredReaction('smile')}
+                      onMouseLeave={() => setHoveredReaction(null)}
+                    >
+                      <Lottie
+                        className="lottie-animation"
+                        loop
+                        path="/animations/smile.json"
+                        play={hoveredReaction === 'smile'}
+                        style={{ width: 32, height: 32 }}
+                      />
                     </ReactionButton>
                     <ActionIconButton size="small">
                       <ReplyIcon />
