@@ -1,14 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Box, Typography, TextField, Button, Link as MuiLink, Container, Paper, Divider } from '@mui/material';
+import { Box, Typography, TextField, Button, Link as MuiLink, Container, Paper } from '@mui/material';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import GoogleIcon from '@mui/icons-material/Google';
 
 const loginSchema = z.object({
   email: z.string().email('Geçerli bir email adresi girin'),
@@ -18,7 +16,6 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const router = useRouter();
   const { login } = useAuth();
   const [error, setError] = useState('');
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
@@ -29,9 +26,8 @@ export default function LoginPage() {
     try {
       setError('');
       await login(data.email, data.password);
-      router.push('/chat');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Giriş yaparken bir hata oluştu');
+      setError(err.message || 'Giriş yaparken bir hata oluştu');
     }
   };
 
@@ -73,6 +69,7 @@ export default function LoginPage() {
               {...register('email')}
               error={!!errors.email}
               helperText={errors.email?.message}
+              disabled={isSubmitting}
             />
 
             <TextField
@@ -82,6 +79,7 @@ export default function LoginPage() {
               {...register('password')}
               error={!!errors.password}
               helperText={errors.password?.message}
+              disabled={isSubmitting}
             />
 
             {error && (
@@ -106,23 +104,6 @@ export default function LoginPage() {
               {isSubmitting ? 'Giriş yapılıyor...' : 'Giriş Yap'}
             </Button>
           </Box>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Divider sx={{ flex: 1 }} />
-            <Typography variant="body2" color="text.secondary">
-              veya
-            </Typography>
-            <Divider sx={{ flex: 1 }} />
-          </Box>
-
-          <Button
-            variant="outlined"
-            fullWidth
-            startIcon={<GoogleIcon />}
-            sx={{ textTransform: 'none' }}
-          >
-            Google ile devam et
-          </Button>
 
           <Box sx={{ textAlign: 'center' }}>
             <Typography variant="body2">

@@ -6,41 +6,44 @@ interface LoginRequest {
 }
 
 interface RegisterRequest {
-  firstName: string;
+  name: string;
   lastName: string;
   email: string;
   password: string;
 }
 
-interface AuthResponse {
-  user: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-  };
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  lastName: string;
 }
 
 export const authService = {
-  async login(data: LoginRequest): Promise<AuthResponse> {
-    const response = await axios.post<AuthResponse>('/api/auth/login', data);
-    return response.data;
+  async login(data: LoginRequest): Promise<void> {
+    await axios.post('/auth', data);
   },
 
-  async register(data: RegisterRequest): Promise<AuthResponse> {
-    const response = await axios.post<AuthResponse>('/api/auth/register', data);
-    return response.data;
+  async register(data: RegisterRequest): Promise<void> {
+    await axios.post('/auth/register', data);
   },
 
   async logout() {
-    await axios.post('/api/auth/logout');
-    window.location.href = '/login';
+    await axios.post('/auth/logout');
   },
-
-  async isAuthenticated() {
+  async getCurrentUser(): Promise<User | null> {
     try {
-      await axios.get('/api/auth/check');
-      return true;
+      const response = await axios.get<{ data: User }>('/users/me');
+      return response.data.data;
+    } catch (error) {
+      console.error('Error fetching current user:', error);
+      return null;
+    }
+  },
+  async isAuthenticated(): Promise<boolean> {
+    try {
+      const user = await this.getCurrentUser();
+      return !!user;
     } catch {
       return false;
     }

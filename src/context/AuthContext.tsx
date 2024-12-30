@@ -1,58 +1,43 @@
 "use client";
 
-import { createContext, useContext, ReactNode, useState, useCallback } from 'react';
-import { signIn, signOut, useSession } from 'next-auth/react';
+import { createContext, useContext, ReactNode } from 'react';
+import { signIn, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  user: any | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const { data: session, status } = useSession();
-  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const login = useCallback(async (email: string, password: string) => {
-    try {
-      setIsLoading(true);
-      const result = await signIn('credentials', {
-        redirect: false,
-        email,
-        password,
-      });
+  const login = async (email: string, password: string) => {
+    const result = await signIn('credentials', {
+      redirect: false,
+      email,
+      password,
+    });
 
-      if (result?.error) {
-        throw new Error(result.error);
-      }
-    } finally {
-      setIsLoading(false);
+    if (result?.error) {
+      throw new Error(result.error);
     }
-  }, []);
 
-  const logout = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      await signOut({ redirect: false });
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    router.push('/chat');
+  };
 
-  const value = {
-    login,
-    logout,
-    isAuthenticated: status === 'authenticated',
-    isLoading: status === 'loading' || isLoading,
-    user: session?.user ?? null,
+  const logout = async () => {
+    await signOut({ redirect: false });
+    router.push('/login');
   };
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{
+      login,
+      logout,
+    }}>
       {children}
     </AuthContext.Provider>
   );

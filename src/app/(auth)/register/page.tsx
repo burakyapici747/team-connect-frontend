@@ -4,14 +4,14 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Box, Typography, TextField, Button, Link as MuiLink, Container, Paper, Divider } from '@mui/material';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import GoogleIcon from '@mui/icons-material/Google';
 
 const registerSchema = z.object({
-  firstName: z.string().min(2, 'Ad en az 2 karakter olmalıdır'),
+  name: z.string().min(2, 'Ad en az 2 karakter olmalıdır'),
   lastName: z.string().min(2, 'Soyad en az 2 karakter olmalıdır'),
   email: z.string().email('Geçerli bir email adresi girin'),
   password: z.string().min(6, 'Şifre en az 6 karakter olmalıdır'),
@@ -30,7 +30,7 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterFormData) => {
     try {
       setError('');
-      await registerUser(data.firstName, data.lastName, data.email, data.password);
+      await registerUser(data.name, data.lastName, data.email, data.password);
       router.push('/chat');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Kayıt olurken bir hata oluştu');
@@ -71,9 +71,9 @@ export default function RegisterPage() {
             <TextField
               label="Ad"
               fullWidth
-              {...register('firstName')}
-              error={!!errors.firstName}
-              helperText={errors.firstName?.message}
+              {...register('name')}
+              error={!!errors.name}
+              helperText={errors.name?.message}
             />
 
             <TextField

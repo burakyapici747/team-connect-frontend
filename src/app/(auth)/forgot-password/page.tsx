@@ -22,10 +22,9 @@ export default function ForgotPasswordPage() {
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
     try {
-      setError('');
-      // API çağrısı burada yapılacak
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simüle edilmiş API çağrısı
-      setIsSubmitted(true);
+        setError('');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setIsSubmitted(true);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Bir hata oluştu');
     }

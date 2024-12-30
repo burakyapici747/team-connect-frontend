@@ -1,13 +1,9 @@
 import NextAuth from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import axios from '@/lib/axios';
 
 const handler = NextAuth({
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID ?? '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
-    }),
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -15,37 +11,35 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        // Add your authentication logic here
-        if (!credentials?.email || !credentials?.password) return null;
-        
-        // This is where you would typically validate against your database
-        // For now, we'll just return a mock user
-        return {
-          id: '1',
-          email: credentials.email,
-          name: 'Test User',
-        };
+        try {
+          await axios.post('/auth', {
+            email: credentials?.email,
+            password: credentials?.password,
+          });
+          
+          // Backend cookie set ettiği için burada user dönmemize gerek yok
+          return { id: '1' } as any;
+        } catch (error: any) {
+          return null;
+        }
       }
-    }),
+    })
   ],
-  pages: {
-    signIn: '/auth/signin',
-    error: '/auth/error',
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (session.user) {
-        (session.user as any).id = token.id;
-      }
-      return session;
-    },
-  },
+  cookies: {
+    sessionToken: {
+      name: 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    }
+  }
 });
 
 export { handler as GET, handler as POST }; 

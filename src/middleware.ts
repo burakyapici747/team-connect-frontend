@@ -1,38 +1,43 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
-export function middleware(request: NextRequest) {
-  // Public paths that don't require authentication
-  const publicPaths = ['/login', '/register', '/forgot-password'];
-  const isPublicPath = publicPaths.some(path => request.nextUrl.pathname.startsWith(path));
+// Auth gerektiren sayfalar
+const protectedRoutes = ['/chat', '/profile', '/settings'];
+// Auth gerektirmeyen sayfalar
+const authRoutes = ['/login', '/register', '/forgot-password'];
 
-  // Get token from cookies
-  const token = request.cookies.get('token');
+export async function middleware(request: NextRequest) {
+  const token = await getToken({ req: request });
+  const { pathname } = request.nextUrl;
 
-  // Redirect to login if accessing protected route without token
-  if (!token && !isPublicPath) {
-    const loginUrl = new URL('/login', request.url);
-    return NextResponse.redirect(loginUrl);
+  // Auth gerektiren sayfalara erişim kontrolü
+  if (protectedRoutes.some(route => pathname.startsWith(route))) {
+    if (!token) {
+      const loginUrl = new URL('/login', request.url);
+      return NextResponse.redirect(loginUrl);
+    }
   }
 
-  // Redirect to chat if accessing public route with token
-  if (token && isPublicPath) {
-    const chatUrl = new URL('/chat', request.url);
-    return NextResponse.redirect(chatUrl);
+  // Giriş yapmış kullanıcının auth sayfalarına erişim kontrolü
+  if (authRoutes.some(route => pathname.startsWith(route))) {
+    if (token) {
+      const chatUrl = new URL('/chat', request.url);
+      return NextResponse.redirect(chatUrl);
+    }
   }
 
   return NextResponse.next();
 }
 
+// Middleware'in çalışacağı path'leri belirle
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/chat/:path*',
+    '/profile/:path*',
+    '/settings/:path*',
+    '/login',
+    '/register',
+    '/forgot-password',
   ],
 }; 
