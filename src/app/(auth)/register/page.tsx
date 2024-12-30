@@ -1,12 +1,12 @@
 'use client';
 
 import { FormInput } from '@/components/common/FormInput';
-import { useLoginForm } from '@/hooks/useLoginForm';
+import { useRegisterForm } from '@/hooks/useRegisterForm';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export default function LoginPage() {
-  const { form, onSubmit } = useLoginForm();
+export default function RegisterPage() {
+  const { form, onSubmit } = useRegisterForm();
   const { register, formState: { errors } } = form;
 
   return (
@@ -26,14 +26,14 @@ export default function LoginPage() {
                 />
               </div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Tekrar Hoş Geldiniz
+                Hesap Oluştur
               </h1>
               <p className="text-gray-600 text-sm">
-                Team Connect'e giriş yaparak takımınızla iletişime geçin
+                Team Connect'e katılmak için hesap oluşturun
               </p>
             </div>
 
-            {/* Login Form */}
+            {/* Register Form */}
             <form onSubmit={onSubmit} className="space-y-5">
               <FormInput
                 label="Email"
@@ -44,6 +44,14 @@ export default function LoginPage() {
               />
 
               <FormInput
+                label="Kullanıcı Adı"
+                type="text"
+                placeholder="kullaniciadi"
+                error={errors.fullName?.message}
+                registration={register('fullName')}
+              />
+
+              <FormInput
                 label="Şifre"
                 type="password"
                 placeholder="••••••••"
@@ -51,28 +59,20 @@ export default function LoginPage() {
                 registration={register('password')}
               />
 
-              <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="text-gray-600">Beni hatırla</span>
-                </label>
-                <Link
-                  href="/forgot-password"
-                  className="text-blue-600 hover:text-blue-700 hover:underline font-medium"
-                >
-                  Şifremi unuttum
-                </Link>
-              </div>
+              <FormInput
+                label="Şifre Tekrar"
+                type="password"
+                placeholder="••••••••"
+                error={errors.confirmPassword?.message}
+                registration={register('confirmPassword')}
+              />
 
               <div className="pt-2">
                 <button
                   type="submit"
                   className="w-full py-2.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-[1.02] focus:scale-[0.98] focus:outline-none"
                 >
-                  Giriş Yap
+                  Kayıt Ol
                 </button>
               </div>
             </form>
@@ -105,16 +105,30 @@ export default function LoginPage() {
               </button>
             </div>
 
-            {/* Register Link */}
-            <p className="text-center text-sm text-gray-600">
-              Hesabınız yok mu?{' '}
-              <Link
-                href="/register"
-                className="font-medium text-blue-600 hover:text-blue-700 hover:underline"
-              >
-                Hemen kaydolun
-              </Link>
-            </p>
+            {/* Terms & Login Link */}
+            <div className="space-y-4 text-center">
+              <p className="text-gray-500 text-xs">
+                Kayıt olarak{' '}
+                <Link href="/terms" className="text-blue-600 hover:text-blue-700 hover:underline">
+                  Kullanım Koşulları
+                </Link>
+                {' '}ve{' '}
+                <Link href="/privacy" className="text-blue-600 hover:text-blue-700 hover:underline">
+                  Gizlilik Politikası
+                </Link>
+                'nı kabul etmiş olursunuz
+              </p>
+
+              <p className="text-sm text-gray-600">
+                Zaten hesabın var mı?{' '}
+                <Link
+                  href="/login"
+                  className="font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                >
+                  Giriş yap
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
       </div>
