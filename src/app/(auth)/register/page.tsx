@@ -4,6 +4,7 @@ import { FormInput } from '@/components/common/FormInput';
 import { useRegisterForm } from '@/hooks/useRegisterForm';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Box, Button, TextField, Typography } from "@mui/material";
 
 export default function RegisterPage() {
   const { form, onSubmit } = useRegisterForm();
@@ -35,12 +36,14 @@ export default function RegisterPage() {
 
             {/* Register Form */}
             <form onSubmit={onSubmit} className="space-y-5">
-              <FormInput
+              <TextField
+                {...register("email")}
                 label="Email"
                 type="email"
-                placeholder="ornek@sirket.com"
-                error={errors.email?.message}
-                registration={register('email')}
+                fullWidth
+                error={!!errors.email}
+                helperText={errors.email?.message}
+                className="auth-input"
               />
 
               <FormInput
@@ -51,20 +54,24 @@ export default function RegisterPage() {
                 registration={register('fullName')}
               />
 
-              <FormInput
+              <TextField
+                {...register("password")}
                 label="Şifre"
                 type="password"
-                placeholder="••••••••"
-                error={errors.password?.message}
-                registration={register('password')}
+                fullWidth
+                error={!!errors.password}
+                helperText={errors.password?.message}
+                className="auth-input"
               />
 
-              <FormInput
+              <TextField
+                {...register("confirmPassword")}
                 label="Şifre Tekrar"
                 type="password"
-                placeholder="••••••••"
-                error={errors.confirmPassword?.message}
-                registration={register('confirmPassword')}
+                fullWidth
+                error={!!errors.confirmPassword}
+                helperText={errors.confirmPassword?.message}
+                className="auth-input"
               />
 
               <div className="pt-2">

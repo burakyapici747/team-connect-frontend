@@ -61,19 +61,7 @@ export const theme = createTheme({
           },
           '&.Mui-focused': {
             '& .MuiOutlinedInput-notchedOutline': {
-              border: 'none',
-            },
-            '& fieldset': {
-              border: 'none !important',
-            },
-            '& .MuiOutlinedInput-input': {
-              outline: 'none !important',
-            },
-          },
-          '& .MuiOutlinedInput-input': {
-            '&:focus': {
-              outline: 'none !important',
-              boxShadow: 'none !important',
+              border: '1px solid #0062ff',
             },
           },
           '&.MuiInputBase-multiline': {
@@ -97,8 +85,36 @@ export const theme = createTheme({
       },
       styleOverrides: {
         root: {
+          '&[class*="auth"]': {
+            '& .MuiInputBase-root': {
+              outline: 'none',
+              '& .MuiOutlinedInput-notchedOutline': {
+                border: '1px solid',
+                borderColor: 'rgba(0, 0, 0, 0.23)',
+              },
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'rgba(0, 0, 0, 0.87)',
+              },
+              '&.Mui-focused': {
+                outline: 'none',
+                '& .MuiOutlinedInput-notchedOutline': {
+                  border: '1px solid #0062ff',
+                },
+              },
+            },
+          },
           '& .MuiInputBase-root': {
             backgroundColor: '#fff',
+            '& .MuiOutlinedInput-notchedOutline': {
+              border: '1px solid',
+              borderColor: 'rgba(0, 0, 0, 0.23)',
+            },
+            '&:hover .MuiOutlinedInput-notchedOutline': {
+              borderColor: 'rgba(0, 0, 0, 0.87)',
+            },
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+              border: '1px solid #0062ff',
+            },
           },
         },
       },

@@ -1,10 +1,18 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
-import { Box, Typography, Avatar as MuiAvatar } from "@mui/material";
+import { Box, Typography, Avatar as MuiAvatar, IconButton, Menu, MenuItem } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import DoneAllIcon from '@mui/icons-material/DoneAll';
+import ReplyIcon from '@mui/icons-material/Reply';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import { BsEmojiSmile, BsEmojiLaughing, BsEmojiHeartEyes, BsHandThumbsUp } from 'react-icons/bs';
+import { IoMdHeart } from 'react-icons/io';
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
 
 interface Message {
   id: string;
@@ -26,7 +34,7 @@ const MessageBubble = styled(Box, {
   shouldForwardProp: (prop) => prop !== "isSelf" && prop !== "isLastInGroup"
 })<{ isSelf: boolean; isLastInGroup: boolean }>(({ theme, isSelf, isLastInGroup }) => ({
   padding: theme.spacing(1.5, 2),
-  maxWidth: '70%',
+  maxWidth: '100%',
   wordBreak: 'break-word',
   cursor: 'default',
   backgroundColor: isSelf ? theme.palette.primary.main : theme.palette.grey[100],
@@ -37,6 +45,17 @@ const MessageBubble = styled(Box, {
       : '4px 16px 16px 4px'
     : '16px',
   position: 'relative',
+  transition: theme.transitions.create(['background-color', 'transform'], {
+    duration: theme.transitions.duration.shortest,
+  }),
+  '&:hover': !isSelf && {
+    backgroundColor: theme.palette.grey[200],
+    '& + .message-actions': {
+      opacity: 1,
+      transform: 'translateY(0)',
+      visibility: 'visible',
+    }
+  },
   '&::after': isLastInGroup && !isSelf ? {
     content: '""',
     position: 'absolute',
@@ -44,7 +63,7 @@ const MessageBubble = styled(Box, {
     bottom: 0,
     width: 20,
     height: 20,
-    backgroundColor: theme.palette.grey[100],
+    backgroundColor: 'inherit',
     clipPath: 'polygon(0 0, 100% 100%, 100% 0)',
   } : isLastInGroup && isSelf ? {
     content: '""',
@@ -57,6 +76,125 @@ const MessageBubble = styled(Box, {
     clipPath: 'polygon(0 100%, 0 0, 100% 0)',
   } : undefined,
 }));
+
+const ActionIconButton = styled(IconButton)(({ theme }) => ({
+  padding: theme.spacing(0.5),
+  color: theme.palette.text.secondary,
+  transition: theme.transitions.create(['transform', 'color'], {
+    duration: theme.transitions.duration.shorter,
+  }),
+  '&:hover': {
+    backgroundColor: 'transparent',
+    color: theme.palette.primary.main,
+    transform: 'scale(1.2) translateY(-2px)',
+  },
+  '& .MuiSvgIcon-root, & svg': {
+    fontSize: '1.25rem',
+  },
+}));
+
+const ReactionButton = styled(ActionIconButton)(({ theme }) => ({
+  '&.thumbs-up': {
+    color: '#1976d2',
+    '&:hover': {
+      color: '#1565c0',
+    }
+  },
+  '&.heart': {
+    color: '#e91e63',
+    '&:hover': {
+      color: '#d81b60',
+    }
+  },
+  '&.laugh': {
+    color: '#ff9800',
+    '&:hover': {
+      color: '#f57c00',
+    }
+  },
+  '&.wow': {
+    color: '#ff5722',
+    '&:hover': {
+      color: '#f4511e',
+    }
+  },
+  '&:hover': {
+    transform: 'scale(1.2) translateY(-2px)',
+  },
+}));
+
+const MessageActions = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  top: -36,
+  right: 0,
+  display: 'flex',
+  alignItems: 'center',
+  gap: theme.spacing(0.5),
+  padding: theme.spacing(0.5),
+  borderRadius: 20,
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+  opacity: 0,
+  visibility: 'hidden',
+  transform: 'translateY(0)',
+  transition: theme.transitions.create(['opacity', 'transform', 'visibility'], {
+    duration: theme.transitions.duration.shorter,
+  }),
+  zIndex: 1,
+  '&:hover, &.active': {
+    opacity: 1,
+    visibility: 'visible',
+  },
+}));
+
+interface MessageContextMenuProps {
+  anchorEl: HTMLElement | null;
+  onClose: () => void;
+  isSelf: boolean;
+}
+
+const MessageContextMenu = ({ anchorEl, onClose, isSelf }: MessageContextMenuProps) => (
+  <Menu
+    anchorEl={anchorEl}
+    open={Boolean(anchorEl)}
+    onClose={onClose}
+    anchorOrigin={{
+      vertical: 'bottom',
+      horizontal: 'right',
+    }}
+    transformOrigin={{
+      vertical: 'top',
+      horizontal: 'right',
+    }}
+    PaperProps={{
+      sx: {
+        mt: 1,
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+        borderRadius: 2,
+        minWidth: 180,
+      }
+    }}
+  >
+    <MenuItem onClick={onClose}>Forward</MenuItem>
+    <MenuItem onClick={onClose}>Copy link</MenuItem>
+    <MenuItem onClick={onClose}>Mark as unread</MenuItem>
+    <MenuItem onClick={onClose}>Translate</MenuItem>
+    <MenuItem onClick={onClose} sx={{ color: 'error.main' }}>Report a concern</MenuItem>
+  </Menu>
+);
+
+const EmojiPicker = ({ onEmojiSelect, onClose }: { onEmojiSelect: (emoji: any) => void; onClose: () => void }) => (
+  <Box sx={{ position: 'absolute', bottom: '100%', right: 0, mb: 1 }}>
+    <Picker 
+      data={data} 
+      onEmojiSelect={onEmojiSelect}
+      onClickOutside={onClose}
+      theme="light"
+      previewPosition="none"
+      skinTonePosition="none"
+    />
+  </Box>
+);
 
 const MOCK_MESSAGES: Message[] = [
   {
@@ -94,21 +232,59 @@ const MOCK_MESSAGES: Message[] = [
 
 const ChatMessages = ({ chatId }: ChatMessagesProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [contextMenu, setContextMenu] = useState<{
+    messageId: string;
+    anchorEl: HTMLElement | null;
+  } | null>(null);
+  const [emojiPicker, setEmojiPicker] = useState<{
+    messageId: string;
+    isOpen: boolean;
+  } | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [MOCK_MESSAGES]);
 
+  const handleContextMenu = (messageId: string, event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const actionsElement = event.currentTarget.closest('.message-actions');
+    if (actionsElement) {
+      actionsElement.classList.add('active');
+    }
+    setContextMenu({
+      messageId,
+      anchorEl: event.currentTarget,
+    });
+  };
+
+  const handleCloseContextMenu = () => {
+    const actionsElements = document.querySelectorAll('.message-actions');
+    actionsElements.forEach(el => el.classList.remove('active'));
+    setContextMenu(null);
+  };
+
+  const handleEmojiClick = (messageId: string) => {
+    setEmojiPicker({
+      messageId,
+      isOpen: true,
+    });
+  };
+
+  const handleEmojiSelect = (emoji: any) => {
+    console.log('Selected emoji:', emoji.native);
+    setEmojiPicker(null);
+  };
+
   return (
     <Box
       sx={{
         flex: 1,
-        overflow: 'auto',
-        p: 3,
+        overflowY: 'auto',
+        p: 1,
         display: 'flex',
         flexDirection: 'column',
-        gap: 2,
-        bgcolor: 'background.default',
+        gap: 1,
       }}
     >
       {MOCK_MESSAGES.map((message, index) => {
@@ -119,11 +295,16 @@ const ChatMessages = ({ chatId }: ChatMessagesProps) => {
         return (
           <Box
             key={message.id}
+            className="message-wrapper"
             sx={{
               display: 'flex',
               flexDirection: message.isSelf ? 'row-reverse' : 'row',
               alignItems: 'flex-end',
-              gap: 1.5,
+              gap: 0.5,
+              justifyContent: message.isSelf ? 'flex-end' : 'flex-start',
+              width: '100%',
+              pr: 0.5,
+              pl: 0.5,
             }}
           >
             {!message.isSelf && isLastInGroup && (
@@ -139,10 +320,47 @@ const ChatMessages = ({ chatId }: ChatMessagesProps) => {
               </MuiAvatar>
             )}
             {!message.isSelf && !isLastInGroup && <Box sx={{ width: 32 }} />}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, maxWidth: '70%', width: '100%', alignItems: message.isSelf ? 'flex-end' : 'flex-start' }}>
-              <MessageBubble isSelf={message.isSelf} isLastInGroup={isLastInGroup}>
-                {message.content}
-              </MessageBubble>
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: 0.5,
+              maxWidth: '100%',
+              marginLeft: message.isSelf ? 'auto' : 'unset',
+              marginRight: message.isSelf ? '0' : 'unset',
+            }}>
+              <Box sx={{ 
+                position: 'relative',
+                display: 'inline-flex',
+              }}>
+                <MessageBubble isSelf={message.isSelf} isLastInGroup={isLastInGroup}>
+                  {message.content}
+                </MessageBubble>
+                {!message.isSelf && (
+                  <MessageActions className="message-actions">
+                    <ReactionButton size="small" className="thumbs-up">
+                      <BsHandThumbsUp />
+                    </ReactionButton>
+                    <ReactionButton size="small" className="heart">
+                      <IoMdHeart />
+                    </ReactionButton>
+                    <ReactionButton size="small" className="laugh">
+                      <BsEmojiLaughing />
+                    </ReactionButton>
+                    <ReactionButton size="small" className="wow">
+                      <BsEmojiHeartEyes />
+                    </ReactionButton>
+                    <ActionIconButton size="small">
+                      <ReplyIcon />
+                    </ActionIconButton>
+                    <ActionIconButton 
+                      size="small"
+                      onClick={(e) => handleContextMenu(message.id, e)}
+                    >
+                      <MoreHorizIcon />
+                    </ActionIconButton>
+                  </MessageActions>
+                )}
+              </Box>
               <Box
                 sx={{
                   display: 'flex',
@@ -174,6 +392,11 @@ const ChatMessages = ({ chatId }: ChatMessagesProps) => {
         );
       })}
       <div ref={messagesEndRef} />
+      <MessageContextMenu
+        anchorEl={contextMenu?.anchorEl ?? null}
+        onClose={handleCloseContextMenu}
+        isSelf={MOCK_MESSAGES.find(m => m.id === contextMenu?.messageId)?.isSelf || false}
+      />
     </Box>
   );
 };

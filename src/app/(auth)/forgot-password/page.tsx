@@ -4,6 +4,7 @@ import { FormInput } from '@/components/common/FormInput';
 import { useForgotPasswordForm } from '@/hooks/useForgotPasswordForm';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Box, Button, TextField, Typography } from "@mui/material";
 
 export default function ForgotPasswordPage() {
   const { form, onSubmit } = useForgotPasswordForm();
@@ -35,12 +36,14 @@ export default function ForgotPasswordPage() {
 
             {/* Forgot Password Form */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              <FormInput
+              <TextField
+                {...register("email")}
                 label="Email"
                 type="email"
-                placeholder="ornek@sirket.com"
-                error={errors.email?.message}
-                registration={register('email')}
+                fullWidth
+                error={!!errors.email}
+                helperText={errors.email?.message}
+                className="auth-input"
               />
 
               <div className="pt-2">

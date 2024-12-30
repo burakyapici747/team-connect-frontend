@@ -4,6 +4,7 @@ import { FormInput } from '@/components/common/FormInput';
 import { useLoginForm } from '@/hooks/useLoginForm';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Box, Button, TextField, Typography } from "@mui/material";
 
 export default function LoginPage() {
   const { form, onSubmit } = useLoginForm();
@@ -35,20 +36,24 @@ export default function LoginPage() {
 
             {/* Login Form */}
             <form onSubmit={onSubmit} className="space-y-5">
-              <FormInput
+              <TextField
+                {...register("email")}
                 label="Email"
                 type="email"
-                placeholder="ornek@sirket.com"
-                error={errors.email?.message}
-                registration={register('email')}
+                fullWidth
+                error={!!errors.email}
+                helperText={errors.email?.message}
+                className="auth-input"
               />
 
-              <FormInput
+              <TextField
+                {...register("password")}
                 label="Şifre"
                 type="password"
-                placeholder="••••••••"
-                error={errors.password?.message}
-                registration={register('password')}
+                fullWidth
+                error={!!errors.password}
+                helperText={errors.password?.message}
+                className="auth-input"
               />
 
               <div className="flex items-center justify-between text-sm">
