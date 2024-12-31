@@ -16,11 +16,11 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const { login } = useAuth();
-  const [error, setError] = useState('');
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-  });
+	const { login } = useAuth();
+  	const [error, setError] = useState('');
+  	const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
+    	resolver: zodResolver(loginSchema),
+  	});
 
   const onSubmit = async (data: LoginFormData) => {
     try {

@@ -1,43 +1,46 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
 
-// Auth gerektiren sayfalar
-const protectedRoutes = ['/chat', '/profile', '/settings'];
-// Auth gerektirmeyen sayfalar
+// Auth gerektiren route'lar
+const protectedRoutes = ['/chat', '/team', '/meeting', '/profile'];
+
+// Sadece non-auth kullanıcılar için route'lar
 const authRoutes = ['/login', '/register', '/forgot-password'];
 
 export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request });
   const { pathname } = request.nextUrl;
 
-  // Auth gerektiren sayfalara erişim kontrolü
+  // Cookie kontrolü
+  const hasCookie = request.cookies.has('jwt'); // backend'deki cookie adına göre değiştirin
+
+  // Auth gerektiren route'lara erişim kontrolü
   if (protectedRoutes.some(route => pathname.startsWith(route))) {
-    if (!token) {
-      const loginUrl = new URL('/login', request.url);
-      return NextResponse.redirect(loginUrl);
+    if (!hasCookie) {
+      return NextResponse.redirect(new URL('/login', request.url));
     }
   }
 
-  // Giriş yapmış kullanıcının auth sayfalarına erişim kontrolü
+  // Auth sayfalarına erişim kontrolü (login, register vs.)
   if (authRoutes.some(route => pathname.startsWith(route))) {
-    if (token) {
-      const chatUrl = new URL('/chat', request.url);
-      return NextResponse.redirect(chatUrl);
+    if (hasCookie) {
+      // Kullanıcı zaten authenticate olmuşsa chat sayfasına yönlendir
+      return NextResponse.redirect(new URL('/chat', request.url));
     }
   }
 
   return NextResponse.next();
 }
 
-// Middleware'in çalışacağı path'leri belirle
 export const config = {
   matcher: [
+    // Auth gerektiren route'lar
     '/chat/:path*',
+    '/team/:path*',
+    '/meeting/:path*',
     '/profile/:path*',
-    '/settings/:path*',
+    // Auth sayfaları
     '/login',
     '/register',
     '/forgot-password',
-  ],
+  ]
 }; 

@@ -1,6 +1,7 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import axios from '@/lib/axios';
+import { authService } from '@/services/auth.service';
+import type { User } from '@/types/auth';
 
 const handler = NextAuth({
   providers: [
@@ -11,34 +12,50 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error('Email and password required');
+        }
+
         try {
-          await axios.post('/auth', {
-            email: credentials?.email,
-            password: credentials?.password,
+          // Backend'e login isteği at, bu işlem httpOnly cookie set edecek
+          await authService.login({
+            email: credentials.email,
+            password: credentials.password,
           });
-          
-          // Backend cookie set ettiği için burada user dönmemize gerek yok
-          return { id: '1' } as any;
+
+          // Cookie set edildikten sonra user bilgilerini al
+          const user = await authService.getAuthenticatedUser();
+          return user;
         } catch (error: any) {
-          return null;
+          throw new Error(error.message || 'Authentication failed');
         }
       }
     })
   ],
-  session: {
-    strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
-  cookies: {
-    sessionToken: {
-      name: 'next-auth.session-token',
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-      },
+  callbacks: {
+    async session({ session, token }) {
+      try {
+        // Her session isteğinde güncel user bilgisini al
+        const user = await authService.getAuthenticatedUser();
+        session.user = user;
+      } catch (error) {
+        session.user = null;
+      }
+      return session;
     }
+  },
+  events: {
+    async signOut() {
+      try {
+        await authService.logout();
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
+    }
+  },
+  pages: {
+    signIn: '/login',
+    error: '/login'
   }
 });
 

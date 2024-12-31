@@ -1,22 +1,24 @@
-export interface LoginCredentials {
+export interface LoginRequest {
   email: string;
   password: string;
 }
 
-export interface AuthState {
-  isAuthenticated: boolean;
-  user: User | null;
-  isLoading: boolean;
+export interface RegisterRequest {
+  name: string;
+  lastName: string;
+  email: string;
+  password: string;
 }
 
 export interface User {
   id: string;
   email: string;
   name: string;
-  avatar?: string;
+  lastName: string;
+  role: string;
 }
 
-export interface AuthContextType extends AuthState {
-  login: (credentials: LoginCredentials) => Promise<void>;
-  logout: () => Promise<void>;
+export type AuthError = {
+  message: string;
+  code?: string;
 } 
