@@ -1,50 +1,71 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
-import { AuthContextType, AuthState, LoginCredentials, User } from '@/types/auth';
+"use client";
 
-const initialState: AuthState = {
-  isAuthenticated: false,
-  user: null,
-  isLoading: false,
-};
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
+import { authService } from '@/services/auth.service';
+import type { User } from '@/types/auth';
+
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  register: (name: string, lastName: string, email: string, password: string) => Promise<void>;
+}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AuthState>(initialState);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-  const login = async (credentials: LoginCredentials) => {
-    setState(prev => ({ ...prev, isLoading: true }));
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
     try {
-      // TODO: Implement actual login logic with your backend
-      const mockUser: User = {
-        id: '1',
-        email: credentials.email,
-        name: 'John Doe',
-      };
-      setState({
-        isAuthenticated: true,
-        user: mockUser,
-        isLoading: false,
-      });
+      const userData = await authService.getAuthenticatedUser();
+      setUser(userData);
     } catch (error) {
-      setState(prev => ({ ...prev, isLoading: false }));
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const login = async (email: string, password: string) => {
+    try {
+      await authService.login({ email, password });
+      await checkAuth(); // Login sonrası user bilgilerini al
+      router.push('/chat');
+    } catch (error: any) {
       throw error;
     }
   };
 
   const logout = async () => {
-    setState(prev => ({ ...prev, isLoading: true }));
     try {
-      // TODO: Implement actual logout logic
-      setState(initialState);
-    } catch (error) {
-      setState(prev => ({ ...prev, isLoading: false }));
+      await authService.logout();
+      setUser(null);
+      router.push('/login');
+    } catch (error: any) {
+      throw error;
+    }
+  };
+
+  const register = async (name: string, lastName: string, email: string, password: string) => {
+    try {
+      await authService.register({ name, lastName, email, password });
+      router.push('/login');
+    } catch (error: any) {
       throw error;
     }
   };
 
   return (
-    <AuthContext.Provider value={{ ...state, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, register }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,13 +1,10 @@
 import NextAuth from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { authService } from '@/services/auth.service';
+import type { User } from '@/types/auth';
 
 const handler = NextAuth({
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID ?? '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
-    }),
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -15,37 +12,51 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        // Add your authentication logic here
-        if (!credentials?.email || !credentials?.password) return null;
-        
-        // This is where you would typically validate against your database
-        // For now, we'll just return a mock user
-        return {
-          id: '1',
-          email: credentials.email,
-          name: 'Test User',
-        };
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error('Email and password required');
+        }
+
+        try {
+          // Backend'e login isteği at, bu işlem httpOnly cookie set edecek
+          await authService.login({
+            email: credentials.email,
+            password: credentials.password,
+          });
+
+          // Cookie set edildikten sonra user bilgilerini al
+          const user = await authService.getAuthenticatedUser();
+          return user;
+        } catch (error: any) {
+          throw new Error(error.message || 'Authentication failed');
+        }
       }
-    }),
+    })
   ],
-  pages: {
-    signIn: '/auth/signin',
-    error: '/auth/error',
-  },
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-      }
-      return token;
-    },
     async session({ session, token }) {
-      if (session.user) {
-        (session.user as any).id = token.id;
+      try {
+        // Her session isteğinde güncel user bilgisini al
+        const user = await authService.getAuthenticatedUser();
+        session.user = user;
+      } catch (error) {
+        session.user = null;
       }
       return session;
-    },
+    }
   },
+  events: {
+    async signOut() {
+      try {
+        await authService.logout();
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
+    }
+  },
+  pages: {
+    signIn: '/login',
+    error: '/login'
+  }
 });
 
 export { handler as GET, handler as POST }; 

@@ -1,137 +1,163 @@
 'use client';
 
-import { FormInput } from '@/components/common/FormInput';
-import { useRegisterForm } from '@/hooks/useRegisterForm';
-import Image from 'next/image';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Box, Typography, TextField, Button, Link as MuiLink, Container, Paper, Divider } from '@mui/material';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import GoogleIcon from '@mui/icons-material/Google';
+
+const registerSchema = z.object({
+  name: z.string().min(2, 'Ad en az 2 karakter olmalıdır'),
+  lastName: z.string().min(2, 'Soyad en az 2 karakter olmalıdır'),
+  email: z.string().email('Geçerli bir email adresi girin'),
+  password: z.string().min(6, 'Şifre en az 6 karakter olmalıdır'),
+});
+
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
-  const { form, onSubmit } = useRegisterForm();
-  const { register, formState: { errors } } = form;
+  const router = useRouter();
+  const { register: registerUser } = useAuth();
+  const [error, setError] = useState('');
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+  });
+
+  const onSubmit = async (data: RegisterFormData) => {
+    try {
+      setError('');
+      await registerUser(data.name, data.lastName, data.email, data.password);
+      router.push('/chat');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Kayıt olurken bir hata oluştu');
+    }
+  };
 
   return (
-    <div className="min-h-screen auth-background">
-      <div className="min-h-screen flex items-center justify-center p-4 auth-container">
-        <div className="w-full max-w-[480px] animate-in">
-          <div className="glass-effect rounded-xl p-8 space-y-8">
-            {/* Logo ve Başlık */}
-            <div className="text-center space-y-3">
-              <div className="relative w-16 h-16 mx-auto mb-2">
-                <Image
-                  src="/logo.svg"
-                  alt="Team Connect Logo"
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Hesap Oluştur
-              </h1>
-              <p className="text-gray-600 text-sm">
-                Team Connect'e katılmak için hesap oluşturun
-              </p>
-            </div>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        bgcolor: 'grey.50',
+        py: 12,
+        px: 2,
+      }}
+    >
+      <Container maxWidth="sm">
+        <Paper
+          elevation={2}
+          sx={{
+            p: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 3,
+          }}
+        >
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="h4" component="h1" gutterBottom>
+              Hesap Oluştur
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Team Connect'e katılmak için hesap oluşturun
+            </Typography>
+          </Box>
 
-            {/* Register Form */}
-            <form onSubmit={onSubmit} className="space-y-5">
-              <FormInput
-                label="Email"
-                type="email"
-                placeholder="ornek@sirket.com"
-                error={errors.email?.message}
-                registration={register('email')}
-              />
+          <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <TextField
+              label="Ad"
+              fullWidth
+              {...register('name')}
+              error={!!errors.name}
+              helperText={errors.name?.message}
+            />
 
-              <FormInput
-                label="Kullanıcı Adı"
-                type="text"
-                placeholder="kullaniciadi"
-                error={errors.fullName?.message}
-                registration={register('fullName')}
-              />
+            <TextField
+              label="Soyad"
+              fullWidth
+              {...register('lastName')}
+              error={!!errors.lastName}
+              helperText={errors.lastName?.message}
+            />
 
-              <FormInput
-                label="Şifre"
-                type="password"
-                placeholder="••••••••"
-                error={errors.password?.message}
-                registration={register('password')}
-              />
+            <TextField
+              label="Email"
+              type="email"
+              fullWidth
+              {...register('email')}
+              error={!!errors.email}
+              helperText={errors.email?.message}
+            />
 
-              <FormInput
-                label="Şifre Tekrar"
-                type="password"
-                placeholder="••••••••"
-                error={errors.confirmPassword?.message}
-                registration={register('confirmPassword')}
-              />
+            <TextField
+              label="Şifre"
+              type="password"
+              fullWidth
+              {...register('password')}
+              error={!!errors.password}
+              helperText={errors.password?.message}
+            />
 
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  className="w-full py-2.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-[1.02] focus:scale-[0.98] focus:outline-none"
-                >
-                  Kayıt Ol
-                </button>
-              </div>
-            </form>
+            {error && (
+              <Typography color="error" variant="body2">
+                {error}
+              </Typography>
+            )}
 
-            {/* Divider */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">veya</span>
-              </div>
-            </div>
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              disabled={isSubmitting}
+              sx={{ mt: 2 }}
+            >
+              {isSubmitting ? 'Kayıt olunuyor...' : 'Kayıt Ol'}
+            </Button>
+          </Box>
 
-            {/* Social Login */}
-            <div>
-              <button 
-                type="button"
-                className="w-full flex items-center justify-center gap-3 py-2.5 px-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-200 group"
-              >
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path
-                    fill="currentColor"
-                    d="M21.35,11.1H12.18V13.83H18.69C18.36,17.64 15.19,19.27 12.19,19.27C8.36,19.27 5,16.25 5,12C5,7.9 8.2,4.73 12.2,4.73C15.29,4.73 17.1,6.7 17.1,6.7L19,4.72C19,4.72 16.56,2 12.1,2C6.42,2 2.03,6.8 2.03,12C2.03,17.05 6.16,22 12.25,22C17.6,22 21.5,18.33 21.5,12.91C21.5,11.76 21.35,11.1 21.35,11.1V11.1Z"
-                  />
-                </svg>
-                <span className="text-gray-700 font-medium text-sm group-hover:text-gray-900">
-                  Google ile devam et
-                </span>
-              </button>
-            </div>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Divider sx={{ flex: 1 }} />
+            <Typography variant="body2" color="text.secondary">
+              veya
+            </Typography>
+            <Divider sx={{ flex: 1 }} />
+          </Box>
 
-            {/* Terms & Login Link */}
-            <div className="space-y-4 text-center">
-              <p className="text-gray-500 text-xs">
-                Kayıt olarak{' '}
-                <Link href="/terms" className="text-blue-600 hover:text-blue-700 hover:underline">
-                  Kullanım Koşulları
-                </Link>
-                {' '}ve{' '}
-                <Link href="/privacy" className="text-blue-600 hover:text-blue-700 hover:underline">
-                  Gizlilik Politikası
-                </Link>
-                'nı kabul etmiş olursunuz
-              </p>
+          <Button
+            variant="outlined"
+            fullWidth
+            startIcon={<GoogleIcon />}
+            sx={{ textTransform: 'none' }}
+          >
+            Google ile devam et
+          </Button>
 
-              <p className="text-sm text-gray-600">
-                Zaten hesabın var mı?{' '}
-                <Link
-                  href="/login"
-                  className="font-medium text-blue-600 hover:text-blue-700 hover:underline"
-                >
-                  Giriş yap
-                </Link>
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+          <Box sx={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Typography variant="caption" color="text.secondary">
+              Kayıt olarak{' '}
+              <MuiLink component={Link} href="/terms">
+                Kullanım Koşulları
+              </MuiLink>
+              {' '}ve{' '}
+              <MuiLink component={Link} href="/privacy">
+                Gizlilik Politikası
+              </MuiLink>
+              'nı kabul etmiş olursunuz
+            </Typography>
+
+            <Typography variant="body2">
+              Zaten hesabınız var mı?{' '}
+              <MuiLink component={Link} href="/login">
+                Giriş yap
+              </MuiLink>
+            </Typography>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 } 

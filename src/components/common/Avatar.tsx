@@ -1,7 +1,7 @@
 "use client";
 
+import { Avatar as MuiAvatar, Badge, styled } from '@mui/material';
 import { getInitials, getAvatarColor } from "@/utils/getInitials";
-import clsx from "clsx";
 
 interface AvatarProps {
   name: string;
@@ -10,38 +10,63 @@ interface AvatarProps {
   isOnline?: boolean;
 }
 
-const sizeClasses = {
-  sm: "w-8 h-8 text-sm",
-  md: "w-10 h-10 text-base",
-  lg: "w-12 h-12 text-lg",
-};
+const StyledBadge = styled(Badge)(({ theme }) => ({
+  '& .MuiBadge-badge': {
+    backgroundColor: '#44b700',
+    color: '#44b700',
+    boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+    '&::after': {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      borderRadius: '50%',
+      border: '1px solid currentColor',
+      content: '""',
+    },
+  },
+  '& .MuiBadge-invisible': {
+    backgroundColor: theme.palette.grey[300],
+  },
+}));
 
 const Avatar = ({ name, size = "md", showStatus, isOnline }: AvatarProps) => {
   const initials = getInitials(name);
   const bgColor = getAvatarColor(name);
+  
+  const sizeMap = {
+    sm: { width: 32, height: 32, fontSize: 14 },
+    md: { width: 40, height: 40, fontSize: 16 },
+    lg: { width: 48, height: 48, fontSize: 18 },
+  };
 
-  return (
-    <div className="relative flex-shrink-0">
-      <div
-        className={clsx(
-          "relative flex items-center justify-center rounded-full font-medium text-white",
-          sizeClasses[size],
-          bgColor
-        )}
-      >
-        {initials}
-      </div>
-      {showStatus && (
-        <span
-          className={clsx(
-            "absolute bottom-0 right-0 block rounded-full border-2 border-white",
-            size === "sm" ? "w-2.5 h-2.5" : "w-3 h-3",
-            isOnline ? "bg-green-500" : "bg-gray-300"
-          )}
-        />
-      )}
-    </div>
+  const AvatarComponent = (
+    <MuiAvatar
+      sx={{
+        ...sizeMap[size],
+        bgcolor: bgColor,
+        fontWeight: 500,
+      }}
+    >
+      {initials}
+    </MuiAvatar>
   );
+
+  if (showStatus) {
+    return (
+      <StyledBadge
+        overlap="circular"
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        variant="dot"
+        invisible={!isOnline}
+      >
+        {AvatarComponent}
+      </StyledBadge>
+    );
+  }
+
+  return AvatarComponent;
 };
 
 export default Avatar; 

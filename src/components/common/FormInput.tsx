@@ -1,5 +1,6 @@
 import { forwardRef } from 'react';
 import { UseFormRegisterReturn } from 'react-hook-form';
+import { TextField, FormHelperText } from '@mui/material';
 
 export interface FormInputProps {
   label: string;
@@ -13,30 +14,41 @@ export interface FormInputProps {
 export const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
   ({ label, type, placeholder, error, registration, darkMode = false }, ref) => {
     return (
-      <div className="space-y-2">
-        <label className={`block text-sm font-medium ${darkMode ? 'text-[#B5BAC1]' : 'text-gray-700'}`}>
-          {label}
-        </label>
-        <input
-          type={type}
-          className={`
-            w-full px-3 py-2 
-            ${darkMode 
-              ? 'bg-[#1E1F22] text-white border-none focus:ring-1 focus:ring-[#5865F2]' 
-              : 'border border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-gray-900'
-            }
-            rounded-sm
-            focus:outline-none focus:ring-1
-            disabled:cursor-not-allowed disabled:opacity-50
-            ${error ? 'border-red-500' : ''}
-          `}
-          placeholder={placeholder}
+      <div>
+        <TextField
           {...registration}
+          type={type}
+          label={label}
+          placeholder={placeholder}
+          error={!!error}
+          fullWidth
+          size="small"
+          variant="outlined"
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              backgroundColor: darkMode ? '#1E1F22' : 'background.paper',
+              '& fieldset': {
+                borderColor: darkMode ? 'transparent' : 'inherit',
+              },
+              '&:hover fieldset': {
+                borderColor: darkMode ? '#5865F2' : 'primary.main',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: darkMode ? '#5865F2' : 'primary.main',
+              },
+            },
+            '& .MuiInputLabel-root': {
+              color: darkMode ? '#B5BAC1' : 'text.primary',
+            },
+            '& .MuiOutlinedInput-input': {
+              color: darkMode ? 'white' : 'text.primary',
+            },
+          }}
         />
         {error && (
-          <p className={`text-xs ${darkMode ? 'text-red-400' : 'text-red-500'}`}>
+          <FormHelperText error sx={{ color: darkMode ? '#ef5350' : 'error.main' }}>
             {error}
-          </p>
+          </FormHelperText>
         )}
       </div>
     );
