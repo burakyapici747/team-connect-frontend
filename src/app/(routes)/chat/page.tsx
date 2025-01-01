@@ -1,18 +1,34 @@
+import { Box, Typography } from "@mui/material";
 import { BsChatDots } from "react-icons/bs";
 
 const ChatPage = () => {
   return (
-    <div className="h-full flex items-center justify-center bg-gray-700">
-      <div className="text-center">
-        <BsChatDots className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-        <h1 className="text-2xl font-semibold text-gray-200 mb-2">
-          Welcome to Chat
-        </h1>
-        <p className="text-gray-400">
-          Select a conversation or start a new one
-        </p>
-      </div>
-    </div>
+    <Box
+      sx={{
+        flex: 1,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        bgcolor: "background.paper",
+      }}
+    >
+      <Box sx={{ textAlign: "center" }}>
+        <BsChatDots
+          style={{
+            width: 64,
+            height: 64,
+            color: "rgba(0, 0, 0, 0.2)",
+            marginBottom: 16,
+          }}
+        />
+        <Typography variant="h5" sx={{ mb: 1, color: "text.primary", fontWeight: 600 }}>
+          Select a Chat
+        </Typography>
+        <Typography variant="body1" sx={{ color: "text.secondary" }}>
+          Choose a conversation from the list or start a new one
+        </Typography>
+      </Box>
+    </Box>
   );
 };
 

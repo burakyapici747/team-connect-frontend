@@ -2,6 +2,7 @@ import { createTheme } from '@mui/material/styles';
 
 export const theme = createTheme({
   palette: {
+    mode: 'light',
     primary: {
       main: '#0062ff',
       light: '#e8f0fe',
@@ -22,6 +23,9 @@ export const theme = createTheme({
   },
   typography: {
     fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    h5: {
+      fontWeight: 600,
+    },
     h6: {
       fontWeight: 600,
     },
@@ -46,76 +50,19 @@ export const theme = createTheme({
       styleOverrides: {
         body: {
           backgroundColor: '#f8f9fa',
+          height: '100vh',
+          overflow: 'hidden',
         },
-      },
-    },
-    MuiOutlinedInput: {
-      styleOverrides: {
-        root: {
-          '& .MuiOutlinedInput-notchedOutline': {
-            border: '1px solid',
-            borderColor: 'rgba(0, 0, 0, 0.23)',
-          },
-          '&:hover .MuiOutlinedInput-notchedOutline': {
-            borderColor: 'rgba(0, 0, 0, 0.87)',
-          },
-          '&.Mui-focused': {
-            '& .MuiOutlinedInput-notchedOutline': {
-              border: '1px solid #0062ff',
-            },
-          },
-          '&.MuiInputBase-multiline': {
-            padding: 8,
-          },
-          backgroundColor: '#f5f5f5',
-          borderRadius: 8,
+        '*::-webkit-scrollbar': {
+          width: '8px',
+          height: '8px',
         },
-        input: {
-          '&::placeholder': {
-            color: '#9ca3af',
-            opacity: 1,
-          },
+        '*::-webkit-scrollbar-thumb': {
+          backgroundColor: 'rgba(0, 0, 0, 0.2)',
+          borderRadius: '4px',
         },
-      },
-    },
-    MuiTextField: {
-      defaultProps: {
-        variant: 'outlined',
-        size: 'small',
-      },
-      styleOverrides: {
-        root: {
-          '&[class*="auth"]': {
-            '& .MuiInputBase-root': {
-              outline: 'none',
-              '& .MuiOutlinedInput-notchedOutline': {
-                border: '1px solid',
-                borderColor: 'rgba(0, 0, 0, 0.23)',
-              },
-              '&:hover .MuiOutlinedInput-notchedOutline': {
-                borderColor: 'rgba(0, 0, 0, 0.87)',
-              },
-              '&.Mui-focused': {
-                outline: 'none',
-                '& .MuiOutlinedInput-notchedOutline': {
-                  border: '1px solid #0062ff',
-                },
-              },
-            },
-          },
-          '& .MuiInputBase-root': {
-            backgroundColor: '#fff',
-            '& .MuiOutlinedInput-notchedOutline': {
-              border: '1px solid',
-              borderColor: 'rgba(0, 0, 0, 0.23)',
-            },
-            '&:hover .MuiOutlinedInput-notchedOutline': {
-              borderColor: 'rgba(0, 0, 0, 0.87)',
-            },
-            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-              border: '1px solid #0062ff',
-            },
-          },
+        '*::-webkit-scrollbar-track': {
+          backgroundColor: 'transparent',
         },
       },
     },
@@ -125,11 +72,8 @@ export const theme = createTheme({
           textTransform: 'none',
           fontWeight: 500,
           padding: '6px 16px',
-        },
-        contained: {
-          boxShadow: 'none',
           '&:hover': {
-            boxShadow: 'none',
+            backgroundColor: 'rgba(0, 0, 0, 0.04)',
           },
         },
       },
@@ -137,8 +81,9 @@ export const theme = createTheme({
     MuiIconButton: {
       styleOverrides: {
         root: {
+          color: '#6c757d',
           '&:hover': {
-            backgroundColor: 'rgba(0, 98, 255, 0.04)',
+            backgroundColor: 'rgba(0, 0, 0, 0.04)',
           },
         },
       },
@@ -150,62 +95,37 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundImage: 'none',
+          backgroundColor: '#ffffff',
+          borderColor: '#e9ecef',
         },
       },
     },
-    MuiCard: {
+    MuiDivider: {
       styleOverrides: {
         root: {
-          border: '1px solid #e9ecef',
-          boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+          borderColor: '#e9ecef',
         },
       },
     },
-    MuiListItemButton: {
+    MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          borderRadius: 8,
-          '&.Mui-selected': {
-            backgroundColor: '#e8f0fe',
-            '&:hover': {
-              backgroundColor: '#e8f0fe',
-            },
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#e9ecef',
           },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#6c757d',
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#0062ff',
+          },
+          backgroundColor: '#ffffff',
         },
-      },
-    },
-    MuiTabs: {
-      styleOverrides: {
-        root: {
-          minHeight: 40,
-        },
-        indicator: {
-          height: 3,
-          borderRadius: '3px 3px 0 0',
-        },
-      },
-    },
-    MuiTab: {
-      styleOverrides: {
-        root: {
-          textTransform: 'none',
-          fontWeight: 500,
-          minHeight: 40,
-        },
-      },
-    },
-    MuiMenu: {
-      styleOverrides: {
-        paper: {
-          borderRadius: 8,
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-        },
-      },
-    },
-    MuiBadge: {
-      styleOverrides: {
-        badge: {
-          fontWeight: 600,
+        input: {
+          '&::placeholder': {
+            color: '#6c757d',
+            opacity: 0.7,
+          },
         },
       },
     },
