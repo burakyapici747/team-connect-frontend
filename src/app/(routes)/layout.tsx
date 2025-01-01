@@ -12,7 +12,7 @@ const Layout = ({ children }: LayoutProps) => {
   return (
     <div className={`flex h-screen bg-gray-50 ${inter.className}`}>
       <Sidebar />
-      <main className="flex-1 h-full overflow-hidden">
+      <main className="flex-1 h-full ">
         {children}
       </main>
     </div>

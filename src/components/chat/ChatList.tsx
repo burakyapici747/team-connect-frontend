@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
+import { Box, Button, Typography, Badge } from "@mui/material";
 import Avatar from "@/components/common/Avatar";
 
 interface ChatListProps {
@@ -20,7 +21,7 @@ const MOCK_CHATS = [
   {
     id: "2",
     name: "Jane Smith",
-    lastMessage: "The meeting is at 2 PM. Please make sure to prepare the presentation slides before the meeting starts.",
+    lastMessage: "The meeting is at 2 PM. Please make sure to prepare the presentation slides.",
     timestamp: new Date(2024, 0, 1, 9, 15),
     unreadCount: 0,
     isOnline: false,
@@ -44,42 +45,84 @@ const ChatList = ({ searchQuery }: ChatListProps) => {
   );
 
   return (
-    <div className="py-2">
+    <Box>
       {filteredChats.map((chat) => (
-        <button
+        <Button
           key={chat.id}
-          onClick={() => router.replace(`/chat/${chat.id}`)}
-          className="w-full px-3 py-2.5 flex items-start gap-3 hover:bg-gray-50 
-            group transition-all focus:bg-gray-100 focus:outline-none"
+          onClick={() => router.push(`/chat/${chat.id}`)}
+          fullWidth
+          sx={{
+            py: 1.5,
+            px: 2,
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 1.5,
+            justifyContent: 'flex-start',
+            textAlign: 'left',
+            borderBottom: 1,
+            borderColor: 'divider',
+            '&:hover': {
+              bgcolor: 'action.hover',
+            },
+          }}
         >
-          <Avatar 
+          <Avatar
             name={chat.name}
             size="md"
             showStatus={!chat.isGroup}
             isOnline={chat.isOnline}
           />
-          <div className="flex-1 min-w-0 flex flex-col items-start">
-            <div className="w-full flex justify-between items-center mb-0.5">
-              <h3 className="text-sm font-semibold text-gray-900 truncate group-hover:text-primary-600">
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  color: 'text.primary',
+                  fontWeight: 500,
+                  textTransform: 'none',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
                 {chat.name}
-              </h3>
-              <span className="text-xs text-gray-500 ml-2 tabular-nums">
-                {format(chat.timestamp, "d MMM")}
-              </span>
-            </div>
-            <p className="text-sm text-gray-600 truncate w-full">
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{ color: 'text.secondary', ml: 1 }}
+              >
+                {format(chat.timestamp, "HH:mm")}
+              </Typography>
+            </Box>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                textTransform: 'none',
+              }}
+            >
               {chat.lastMessage}
-            </p>
-          </div>
+            </Typography>
+          </Box>
           {chat.unreadCount > 0 && (
-            <span className="flex-shrink-0 h-5 min-w-5 px-1.5 inline-flex items-center 
-              justify-center bg-primary-500 text-white text-xs font-medium rounded-full">
-              {chat.unreadCount}
-            </span>
+            <Badge
+              badgeContent={chat.unreadCount}
+              color="primary"
+              sx={{
+                '& .MuiBadge-badge': {
+                  minWidth: 20,
+                  height: 20,
+                  padding: '0 6px',
+                },
+              }}
+            />
           )}
-        </button>
+        </Button>
       ))}
-    </div>
+    </Box>
   );
 };
 
